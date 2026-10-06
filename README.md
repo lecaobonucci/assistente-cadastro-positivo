@@ -3,7 +3,7 @@
 > Assistente de IA que responde perguntas sobre a regulamentação do Cadastro Positivo, sempre citando o artigo da norma de onde tirou a resposta.
 > Feito com Python, Gemini (Vertex AI), BigQuery e Streamlit.
 
-**Status:** 🟡 Semana 1 de 6: discovery concluído, desenvolvimento ainda não começou.
+**Status:** 🟡 Semana 2 de 6: discovery concluído e vigência das normas conferida. Próximo passo: carga dos textos no BigQuery.
 
 ---
 
