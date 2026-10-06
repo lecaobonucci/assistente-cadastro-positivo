@@ -1,7 +1,7 @@
 # Assistente de Normas do Cadastro Positivo (RAG)
 
 > Assistente de IA que responde perguntas sobre a regulamentação do Cadastro Positivo, sempre citando o artigo da norma de onde tirou a resposta.
-> Feito com Python, Gemini (Vertex AI), BigQuery e Streamlit.
+> Feito com Python, API do Gemini, BigQuery e Streamlit, usando apenas camadas gratuitas.
 
 **Status:** 🟡 Semana 2 de 6: discovery concluído e vigência das normas conferida. Próximo passo: carga dos textos no BigQuery.
 
@@ -58,7 +58,7 @@ Hoje a consulta acontece assim:
 | Confiabilidade | % de respostas com a citação correta | A resposta cita a norma e o artigo que contêm a informação? | ≥ 90% |
 | Segurança | % de recusas corretas | Para perguntas fora do escopo ou sem resposta na base, o assistente diz "não encontrei" em vez de inventar | 100% das perguntas "pegadinha" |
 | Performance | Tempo de resposta (p95) | Log no BigQuery: momento da pergunta até a resposta | < 10 s |
-| Custo | Custo por pergunta | Tokens consumidos × preço do modelo | < R$ 0,05 |
+| Custo | Custo do MVP | Uso dentro das camadas gratuitas (Gemini API, BigQuery sandbox, Colab, Streamlit Cloud) | R$ 0 |
 | Uso (pós-MVP) | Avaliação do usuário | Botões 👍/👎 na interface, gravados no BigQuery | ≥ 75% positivas |
 
 > A meta de 80% é o ponto de partida. Se a primeira avaliação ficar abaixo, isso vira um item do backlog: ajustar o tamanho dos trechos, o prompt ou o número de trechos recuperados, e medir de novo.
@@ -81,10 +81,10 @@ Hoje a consulta acontece assim:
 Pergunta (Streamlit)
       │
       ▼
-Embedding da pergunta (Vertex AI)
+Embedding da pergunta (API do Gemini ou modelo aberto)
       │
       ▼
-Busca vetorial no BigQuery (VECTOR_SEARCH) ──► top-k trechos + metadados (norma, artigo)
+Busca por similaridade no BigQuery ──► top-k trechos + metadados (norma, artigo)
       │
       ▼
 Gemini gera a resposta usando SÓ os trechos recebidos e citando a fonte
@@ -236,10 +236,17 @@ Mesmo princípio usado na minha rotina de trabalho: **validar com dados antes de
 - Monitorar novas publicações do Banco Central e alertar quando uma norma da base for alterada.
 - Responder considerando a versão da norma vigente em uma data específica.
 - Avaliação automática com um segundo modelo como juiz, sempre comparada com a nota manual.
+- Migrar para a Vertex AI, para ter controle de dados corporativo e escalar além dos limites gratuitos.
 
 ## 11. Stack
 
-Python · Gemini (Vertex AI) · Vertex AI Embeddings · BigQuery (armazenamento, busca vetorial e logs) · Streamlit
+Python · API do Gemini (Google AI Studio) · BigQuery sandbox (armazenamento, busca por similaridade e logs) · Google Colab · Streamlit Community Cloud
+
+**Decisão de custo:** o MVP usa apenas camadas gratuitas, sem cartão de crédito. Consequências aceitas:
+
+- as tabelas do BigQuery sandbox expiram em 60 dias, então a carga precisa ser repetível (US04);
+- o sandbox não aceita INSERT/UPDATE, então os logs são gravados por carga em lote;
+- na camada gratuita, o Google pode usar o conteúdo enviado para melhorar seus produtos. Por isso o corpus tem só normas públicas e o app avisa para não incluir dados pessoais.
 
 ---
 
